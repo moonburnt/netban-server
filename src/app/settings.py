@@ -9,6 +9,7 @@ SECRET_KEY = env.get_str("DJANGO_SECRET_KEY")
 DEBUG = env.get_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = env.get_list("DJANGO_ALLOWED_HOSTS")
 
+AUTH_USER_MODEL = "users.User"
 
 # Application definition
 INSTALLED_APPS = [
@@ -21,6 +22,8 @@ INSTALLED_APPS = [
     # DB
     "django.contrib.postgres",
     "psqlextra",
+    # Custom
+    "users",
 ]
 
 MIDDLEWARE = [
