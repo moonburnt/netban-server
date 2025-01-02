@@ -16,6 +16,9 @@ class PlatformUser(models.Model):
     # TODO: maybe add "platform" field for the potential support of other
     # platforms besides TG?
 
+    def __str__(self) -> str:
+        return self.user_id
+
 
 class User(AbstractUser):
     # Optional ability to specify which platform id belongs to this admin account.

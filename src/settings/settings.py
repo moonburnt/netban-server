@@ -22,8 +22,13 @@ INSTALLED_APPS = [
     # DB
     "django.contrib.postgres",
     "psqlextra",
+    # DRF
+    "rest_framework",
+    # Swagger
+    "drf_spectacular",
     # Custom
     "users",
+    "restrictions",
 ]
 
 MIDDLEWARE = [
@@ -92,6 +97,11 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+# DRF
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
 
 
 # Static files (CSS, JavaScript, Images)
