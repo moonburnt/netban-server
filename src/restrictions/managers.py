@@ -30,7 +30,7 @@ class UserRestrictionManager(Manager):
         qs = qs.annotate(
             is_active=Q(
                 Q(restricted_until__isnull=True)
-                | Q(restricted_until__lt=now()),
+                | Q(restricted_until__gt=now()),
             )
         )
 
