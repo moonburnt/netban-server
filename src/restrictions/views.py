@@ -1,24 +1,15 @@
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import views, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from typing import Any
 from .serializers import UserRestrictionSerializer
-from .models import UserRestriction
+from .services import UserRestrictionService
 
 
-class UserRestrictionView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = UserRestriction.objects.filter(is_active=True)
-    serializer_class = UserRestrictionSerializer
-    permission_classes = (permissions.AllowAny,)  # TODO: token-based auth
-
-    def get_queryset(self):
-        user = self.request.GET.get("user", None)
-        if not user:
-            raise ValidationError("'user' is required")
-
-        return super().get_queryset().filter(platform_user__user_id=user)
+class UserRestrictionView(views.APIView):
+    # TODO: token-based auth
 
     @extend_schema(
         tags=("restriction",),
@@ -29,6 +20,19 @@ class UserRestrictionView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 required=True,
             )
         ],
+        responses={
+            200: UserRestrictionSerializer(many=True),
+        },
     )
-    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        return super().list(request, *args, **kwargs)
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        user = request.GET.get("user", None)
+        if not user:
+            raise ValidationError("'user' is required")
+
+        service = UserRestrictionService(user=user)
+        restrictions = service.get_restrictions()
+
+        return Response(
+            data=UserRestrictionSerializer(restrictions, many=True).data,
+            status=status.HTTP_200_OK,
+        )

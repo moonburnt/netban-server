@@ -5,7 +5,7 @@ urlpatterns = [
     path(
         "restrictions",
         include(
-            restrictions_urls,
+            (restrictions_urls.urlpatterns, "restrictions"),
             namespace="restrictions",
         ),
     ),

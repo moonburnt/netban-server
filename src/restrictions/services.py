@@ -1,7 +1,7 @@
 from django.db import transaction
 from datetime import datetime
 from typing import Any
-from src.users.models import PlatformUser
+from users.models import PlatformUser
 from .models import UserRestriction
 from .choices import UserRestrictionType
 from .exceptions import UnrestrictableUser
@@ -38,11 +38,12 @@ class UserRestrictionService:
         )
 
     def get_restrictions(
-        self, by_type: UserRestrictionType | None
+        self,
+        by_type: UserRestrictionType | None = None,
     ) -> "Queryset[UserRestriction]":
         qs_filter = dict(
             platform_user__pk=self._user_id,
-            # is_active=True,
+            is_active=True,
         )
         if by_type is not None:
             qs_filter["restriction_type"] = by_type

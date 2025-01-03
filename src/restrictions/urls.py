@@ -4,9 +4,10 @@ from .views import UserRestrictionView
 
 app_name = "restrictions"
 
-router = SimpleRouter()
-router.register("", UserRestrictionView, basename="user_restrictions")
+# router = SimpleRouter()
+# router.register("", UserRestrictionView, basename="user_restrictions")
 
 urlpatterns = [
-    path("", include(router.urls)),
+    # path("", include(router.urls)),
+    path("", UserRestrictionView.as_view())
 ]
