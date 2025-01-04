@@ -1,5 +1,5 @@
 from django.urls import include, path
-from restrictions import urls as restrictions_urls
+from server.restrictions import urls as restrictions_urls
 
 urlpatterns = [
     path(

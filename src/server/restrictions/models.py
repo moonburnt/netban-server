@@ -7,7 +7,7 @@ from datetime import datetime
 
 class UserRestriction(models.Model):
     platform_user = models.ForeignKey(
-        to="users.PlatformUser",
+        to="platform.PlatformUser",
         related_name="restrictions",
         on_delete=models.CASCADE,
     )
@@ -41,4 +41,4 @@ class UserRestriction(models.Model):
 
     # restricted_until, is_active - are now parts of the manager
     def __str__(self) -> str:
-        return f"{UserRestrictionType(self.restriction_type).name} of the @{self.platform_user.user_id}"
+        return f"{UserRestrictionType(self.restriction_type).name} of the @{self.platform_user.identifier}"

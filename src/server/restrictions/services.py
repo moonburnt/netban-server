@@ -1,7 +1,7 @@
 from django.db import transaction
 from datetime import datetime
 from typing import Any
-from users.models import PlatformUser
+from server.platform.models import PlatformUser
 from .models import UserRestriction
 from .choices import UserRestrictionType
 from .exceptions import UnrestrictableUser
@@ -11,11 +11,11 @@ class UserRestrictionService:
     def __init__(self, user: str | PlatformUser):
         if isinstance(user, PlatformUser):
             self._platform_user = user
-            self._user_id = user.pk
+            self._identifier = user.pk
         else:
-            self._user_id = user
+            self._identifier = user
             self._platform_user = PlatformUser.objects.filter(
-                user_id=user,
+                identifier=user,
             ).first()
 
     @transaction.atomic
@@ -27,7 +27,7 @@ class UserRestrictionService:
     ) -> UserRestriction:
         if not self._platform_user:
             self._platform_user = PlatformUser.objects.get_or_create(
-                user_id=self._user_id,
+                identifier=self._identifier,
             )[0]
 
         restriction = UserRestriction.objects.create(
@@ -46,7 +46,7 @@ class UserRestrictionService:
         by_type: UserRestrictionType | None = None,
     ) -> "Queryset[UserRestriction]":
         qs_filter = dict(
-            platform_user__user_id=self._user_id,
+            platform_user__identifier=self._identifier,
             is_active=True,
         )
         if by_type is not None:

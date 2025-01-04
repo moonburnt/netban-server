@@ -27,8 +27,9 @@ INSTALLED_APPS = [
     # Swagger
     "drf_spectacular",
     # Custom
-    "users",
-    "restrictions",
+    "server.users",
+    "server.platform",
+    "server.restrictions",
 ]
 
 MIDDLEWARE = [
@@ -41,7 +42,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "urls"
+ROOT_URLCONF = "server.urls"
 
 TEMPLATES = [
     {

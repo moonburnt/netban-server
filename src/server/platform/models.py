@@ -8,7 +8,7 @@ class PlatformUser(models.Model):
     Restricted users only have this, admins may tie this to their account.
     """
 
-    user_id = models.CharField(
+    identifier = models.CharField(
         max_length=128,
         unique=True,
     )
@@ -17,17 +17,16 @@ class PlatformUser(models.Model):
     # platforms besides TG?
 
     def __str__(self) -> str:
-        return self.user_id
+        return self.identifier
 
 
-class User(AbstractUser):
-    # Optional ability to specify which platform id belongs to this admin account.
-    # May be used for other purposes in future
-    platform_user = models.OneToOneField(
-        to=PlatformUser,
-        related_name="user",
-        on_delete=models.SET_NULL,
-        default=None,
-        blank=True,
-        null=True,
+class PlatformGroup(models.Model):
+    """Platform specific group data."""
+
+    identifier = models.CharField(
+        max_length=128,
+        unique=True,
     )
+
+    def __str__(self) -> str:
+        return self.identifier

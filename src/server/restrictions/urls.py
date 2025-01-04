@@ -5,5 +5,5 @@ app_name = "restrictions"
 
 urlpatterns = [
     path("", UserRestrictionListView.as_view()),
-    path("/restrict", UserRestrictionRestrictView.as_view()),
+    path("restrict", UserRestrictionRestrictView.as_view()),
 ]

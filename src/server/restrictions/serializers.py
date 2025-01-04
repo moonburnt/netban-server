@@ -65,7 +65,7 @@ class UserRestrictionSerializer(serializers.ModelSerializer):
     ]
 )
 class UserRestrictionRestrictSerializer(serializers.Serializer):
-    # Max length from PlatformUser.user_id
+    # Max length from PlatformUser.identifer
     user = serializers.CharField(
         max_length=128,
         required=True,
