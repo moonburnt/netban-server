@@ -109,3 +109,7 @@ STATIC_URL = "static/"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Netban server settings
+API_VERSION = "0.1.0"

@@ -30,19 +30,23 @@ class UserRestrictionService:
                 user_id=self._user_id,
             )[0]
 
-        return UserRestriction.objects.create(
+        restriction = UserRestriction.objects.create(
             platform_user=self._platform_user,
             restriction_type=restriction_type,
             restriction_length=length,
             restriction_reason=reason,
         )
 
+        # This is a bit awkward, but the object returned from create() will
+        # not contain aggregated values, which we need to display in our response
+        return UserRestriction.objects.get(pk=restriction.pk)
+
     def get_restrictions(
         self,
         by_type: UserRestrictionType | None = None,
     ) -> "Queryset[UserRestriction]":
         qs_filter = dict(
-            platform_user__pk=self._user_id,
+            platform_user__user_id=self._user_id,
             is_active=True,
         )
         if by_type is not None:
