@@ -11,6 +11,15 @@ class UserRestriction(models.Model):
         related_name="restrictions",
         on_delete=models.CASCADE,
     )
+    # If None - then its a netban, applicable for all platforms
+    platform_group = models.ForeignKey(
+        to="platform.PlatformGroup",
+        related_name="restrictions",
+        blank=True,
+        null=True,
+        default=None,
+        on_delete=models.CASCADE,
+    )
 
     restriction_type = models.IntegerField(
         choices=UserRestrictionType.choices,

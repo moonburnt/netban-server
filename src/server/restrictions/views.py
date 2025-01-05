@@ -7,6 +7,7 @@ from typing import Any
 from .serializers import (
     UserRestrictionSerializer,
     UserRestrictionRestrictSerializer,
+    UserRestrictionRestrictForGroupSerializer,
 )
 from .services import UserRestrictionService
 
@@ -21,7 +22,12 @@ class UserRestrictionListView(views.APIView):
                 name="user",
                 type=str,
                 required=True,
-            )
+            ),
+            OpenApiParameter(
+                name="group",
+                type=str,
+                required=False,
+            ),
         ],
         responses={
             200: UserRestrictionSerializer(many=True),
@@ -32,7 +38,12 @@ class UserRestrictionListView(views.APIView):
         if not user:
             raise ValidationError("'user' is required")
 
-        service = UserRestrictionService(user=user)
+        group = request.GET.get("group", None)
+
+        service = UserRestrictionService(
+            user=user,
+            group=group,
+        )
         restrictions = service.get_restrictions()
 
         # TODO: maybe paginate this or only return the most recent bans?
@@ -47,23 +58,26 @@ class UserRestrictionRestrictView(views.APIView):
 
     @extend_schema(
         tags=("restriction",),
-        request=UserRestrictionRestrictSerializer,
+        request=UserRestrictionRestrictForGroupSerializer,
         responses={
             200: UserRestrictionSerializer(many=False),
         },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = UserRestrictionRestrictSerializer(data=request.data)
+        serializer = UserRestrictionRestrictForGroupSerializer(
+            data=request.data
+        )
         serializer.is_valid(raise_exception=True)
 
-        service = UserRestrictionService(user=serializer.validated_data["user"])
+        service = UserRestrictionService(
+            user=serializer.validated_data["user"],
+            group=serializer.validated_data["group"],
+        )
         restriction = service.restrict(
             restriction_type=serializer.validated_data["restriction_type"],
             reason=serializer.validated_data["restriction_reason"],
             length=serializer.validated_data["restriction_length"],
         )
-
-        print(restriction)
 
         return Response(
             data=UserRestrictionSerializer(restriction).data,

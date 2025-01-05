@@ -81,3 +81,35 @@ class UserRestrictionRestrictSerializer(serializers.Serializer):
         required=False,
         help_text="If not set - will be forever",
     )
+
+
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Request Example 0",
+            summary="Example",
+            description=(
+                # TODO: description for other fields
+                "- user: user id on the platform, no longer than 128 symbols.\n"
+                "- group: user id on the platform, no longer than 128 symbols.\n"
+                "- restriction_length: length of the restiction in HH:MM:SS fmt.\n"
+            ),
+            request_only=True,
+            value={
+                "user": "123",
+                "group": "134523523",
+                "restriction_type": UserRestrictionType.BAN,
+                "restriction_reason": "Was bad",
+                "restriction_length": "10:12:00",
+            },
+        ),
+    ]
+)
+class UserRestrictionRestrictForGroupSerializer(
+    UserRestrictionRestrictSerializer
+):
+    # Max length from PlatformGroup.identifier
+    group = serializers.CharField(
+        max_length=128,
+        required=True,
+    )
