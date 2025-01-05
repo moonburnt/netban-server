@@ -11,26 +11,38 @@ ALLOWED_HOSTS = env.get_list("DJANGO_ALLOWED_HOSTS")
 
 AUTH_USER_MODEL = "users.User"
 
+# Netban server settings
+API_VERSION = "0.1.0"
+HEADLESS_MODE = env.get_bool("HEADLESS_MODE", False)
+
 # Application definition
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    # DB
-    "django.contrib.postgres",
-    "psqlextra",
-    # DRF
-    "rest_framework",
-    # Swagger
-    "drf_spectacular",
-    # Custom
-    "server.users",
-    "server.platform",
-    "server.restrictions",
-]
+if HEADLESS_MODE:
+    INSTALLED_APPS = []
+else:
+    INSTALLED_APPS = [
+        "django.contrib.admin",
+    ]
+
+INSTALLED_APPS.extend(
+    [
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        # DB
+        "django.contrib.postgres",
+        "psqlextra",
+        # DRF
+        "rest_framework",
+        # Swagger
+        "drf_spectacular",
+        # Custom
+        "server.users",
+        "server.platform",
+        "server.restrictions",
+    ]
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -110,7 +122,3 @@ STATIC_URL = "static/"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-# Netban server settings
-API_VERSION = "0.1.0"
