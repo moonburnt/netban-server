@@ -7,7 +7,6 @@ from typing import Any
 from .serializers import (
     UserRestrictionSerializer,
     UserRestrictionRestrictSerializer,
-    UserRestrictionRestrictForGroupSerializer,
 )
 from .services import UserRestrictionService
 
@@ -58,25 +57,26 @@ class UserRestrictionRestrictView(views.APIView):
 
     @extend_schema(
         tags=("restriction",),
-        request=UserRestrictionRestrictForGroupSerializer,
+        request=UserRestrictionRestrictSerializer,
         responses={
             200: UserRestrictionSerializer(many=False),
         },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = UserRestrictionRestrictForGroupSerializer(
-            data=request.data
+        serializer = UserRestrictionRestrictSerializer(
+            data=request.data,
         )
         serializer.is_valid(raise_exception=True)
 
+        # TODO: require request to be sent by an admin-related account for netbans
         service = UserRestrictionService(
             user=serializer.validated_data["user"],
-            group=serializer.validated_data["group"],
+            group=serializer.validated_data.get("group", None),
         )
         restriction = service.restrict(
             restriction_type=serializer.validated_data["restriction_type"],
             reason=serializer.validated_data["restriction_reason"],
-            length=serializer.validated_data["restriction_length"],
+            length=serializer.validated_data.get("restriction_length", None),
         )
 
         return Response(
