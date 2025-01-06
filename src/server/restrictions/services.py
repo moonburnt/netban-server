@@ -21,7 +21,7 @@ class UserRestrictionService:
             ).first()
 
         # If None - threat this instance as a netban instance, that works globally
-        if isinstance(group, (PlatformGroup, None)):
+        if (group is None) or isinstance(group, PlatformGroup):
             self._platform_group = group
         else:
             self._platform_group = PlatformGroup.objects.get_or_create(
@@ -71,9 +71,9 @@ class UserRestrictionService:
             qs_filter["restriction_type"] = by_type
 
         if self._platform_group is None:
-            qs_filter["restriction_group__isnull"] = True
+            qs_filter["platform_group__isnull"] = True
         else:
-            qs_filter["restriction_group"] = self._platform_group
+            qs_filter["platform_group"] = self._platform_group
 
         return UserRestriction.objects.filter(**qs_filter)
 
