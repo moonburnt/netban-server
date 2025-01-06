@@ -35,6 +35,7 @@ INSTALLED_APPS.extend(
         "psqlextra",
         # DRF
         "rest_framework",
+        "rest_framework_api_key",
         # Swagger
         "drf_spectacular",
         # Custom
@@ -114,8 +115,13 @@ USE_TZ = True
 # DRF
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework_api_key.permissions.HasAPIKey",
+    ],
 }
 
+# Api key
+API_KEY_CUSTOM_HEADER = "HTTP_NETBAN_API_KEY"
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
@@ -124,3 +130,24 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 APPEND_SLASH = True
+
+# Schema
+SPECTACULAR_SETTINGS = {
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Netban-Api-Key",
+            }
+        }
+    },
+    "SECURITY": [
+        {
+            "ApiKeyAuth": [],
+        }
+    ],
+    "AUTHENTICATION_WHITELIST": [
+        "rest_framework_api_key.permissions.HasAPIKey"
+    ],
+}

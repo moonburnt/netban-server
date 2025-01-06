@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 django-postgres-extra = "^2.0.8"
 psycopg2 = "^2.9.10"
 drf-spectacular = "^0.28.0"
+djangorestframework-api-key = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.8.4"

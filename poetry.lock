@@ -89,6 +89,20 @@ files = [
 django = ">=4.2"
 
 [[package]]
+name = "djangorestframework-api-key"
+version = "3.0.0"
+description = "API key permissions for the Django REST Framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "djangorestframework-api-key-3.0.0.tar.gz", hash = "sha256:f18cdfa45aaea10fd4daaebffa60481ce4002c9b9ef6c551ef1fc21dadf28845"},
+    {file = "djangorestframework_api_key-3.0.0-py3-none-any.whl", hash = "sha256:b9443cd864e43caebdd330224f9309957b38128267fbc9dc1ba2f3fa1c8414d0"},
+]
+
+[package.dependencies]
+packaging = "*"
+
+[[package]]
 name = "drf-spectacular"
 version = "0.28.0"
 description = "Sane and flexible OpenAPI 3 schema generation for Django REST framework"
@@ -156,6 +170,17 @@ files = [
 
 [package.dependencies]
 referencing = ">=0.31.0"
+
+[[package]]
+name = "packaging"
+version = "24.2"
+description = "Core utilities for Python packages"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "packaging-24.2-py3-none-any.whl", hash = "sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759"},
+    {file = "packaging-24.2.tar.gz", hash = "sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f"},
+]
 
 [[package]]
 name = "psycopg2"
@@ -470,4 +495,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "9a5556060336ef1754bbff4deda1c34ccf013620ffdb40fd3906c04c8fe954cf"
+content-hash = "4ded34b91ae43df7a742d5dc54c70ecd1611b4efd6caf28d3682701956691210"
