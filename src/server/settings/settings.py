@@ -139,8 +139,8 @@ SPECTACULAR_SETTINGS = {
                 "type": "apiKey",
                 "in": "header",
                 "name": "Netban-Api-Key",
-            }
-        }
+            },
+        },
     },
     "SECURITY": [
         {

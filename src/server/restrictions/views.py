@@ -2,6 +2,7 @@ from django.conf import settings
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import views, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 from typing import Any, Callable
@@ -10,6 +11,17 @@ from .serializers import (
     UserRestrictionRestrictSerializer,
 )
 from .services import UserRestrictionService
+
+
+class HasCorrectAPIVersionHeader(BasePermission):
+    code = "unsupported_version"
+    message = "Netban-Api-Version header mismatch"
+
+    def has_permission(self, request: Request, view: Any) -> bool:
+        return bool(
+            request.META.get("HTTP_NETBAN_API_VERSION", None)
+            == settings.API_VERSION
+        )
 
 
 # TODO: maybe move this to core application
@@ -37,7 +49,13 @@ class FormattedResponseMixin:
         return ret
 
 
-class UserRestrictionListView(FormattedResponseMixin, views.APIView):
+class NetbanAPIView(FormattedResponseMixin, views.APIView):
+    permission_classes = views.APIView.permission_classes + [
+        HasCorrectAPIVersionHeader,
+    ]
+
+
+class UserRestrictionListView(NetbanAPIView):
     @extend_schema(
         tags=("restriction",),
         parameters=[
@@ -50,6 +68,13 @@ class UserRestrictionListView(FormattedResponseMixin, views.APIView):
                 name="group",
                 type=str,
                 required=False,
+            ),
+            OpenApiParameter(
+                name="Netban-Api-Version",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=True,
+                default=settings.API_VERSION,
             ),
         ],
         responses={
@@ -77,9 +102,18 @@ class UserRestrictionListView(FormattedResponseMixin, views.APIView):
         )
 
 
-class UserRestrictionRestrictView(FormattedResponseMixin, views.APIView):
+class UserRestrictionRestrictView(NetbanAPIView):
     @extend_schema(
         tags=("restriction",),
+        parameters=[
+            OpenApiParameter(
+                name="Netban-Api-Version",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=True,
+                default=settings.API_VERSION,
+            ),
+        ],
         request=UserRestrictionRestrictSerializer,
         responses={
             200: UserRestrictionSerializer(many=False),
