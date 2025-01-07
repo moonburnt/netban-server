@@ -1,58 +1,16 @@
 from django.conf import settings
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import views, status
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
-from typing import Any, Callable
+from typing import Any
+from server.core.views import NetbanAPIView
 from .serializers import (
     UserRestrictionSerializer,
     UserRestrictionRestrictSerializer,
 )
 from .services import UserRestrictionService
-
-
-class HasCorrectAPIVersionHeader(BasePermission):
-    code = "unsupported_version"
-    message = "Netban-Api-Version header mismatch"
-
-    def has_permission(self, request: Request, view: Any) -> bool:
-        return bool(
-            request.META.get("HTTP_NETBAN_API_VERSION", None)
-            == settings.API_VERSION
-        )
-
-
-# TODO: maybe move this to core application
-class FormattedResponseMixin:
-    def finalize_response(
-        self,
-        request: Request,
-        response: Response,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Response:
-        ret = super().finalize_response(request, response, *args, **kwargs)
-        ret_data = {
-            "api_version": settings.API_VERSION,
-        }
-
-        if 199 < ret.status_code < 300:
-            ret_data["error"] = False
-        else:
-            ret_data["error"] = True
-
-        ret_data["data"] = ret.data
-        ret.data = ret_data
-
-        return ret
-
-
-class NetbanAPIView(FormattedResponseMixin, views.APIView):
-    permission_classes = views.APIView.permission_classes + [
-        HasCorrectAPIVersionHeader,
-    ]
 
 
 class UserRestrictionListView(NetbanAPIView):

@@ -39,6 +39,7 @@ INSTALLED_APPS.extend(
         # Swagger
         "drf_spectacular",
         # Custom
+        "server.core",
         "server.users",
         "server.platform",
         "server.restrictions",
