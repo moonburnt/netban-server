@@ -4,7 +4,23 @@ from typing import Any
 from server.platform.models import PlatformUser, PlatformGroup
 from .models import UserRestriction
 from .choices import UserRestrictionType
-from .exceptions import UnrestrictableUser
+from .exceptions import UnrestrictableUser, NotAnInstanceAdmin
+
+
+def is_admin(platform_user: str | PlatformUser) -> bool:
+    """Permission check to ensure the specified user has admin rights."""
+
+    # Right now: if a platform user is tied to the server account - it is an admin.
+    if isinstance(platform_user, PlatformUser):
+        return hasattr(platform_user, "user")
+
+    else:
+        return bool(
+            PlatformUser.objects.filter(
+                identifier=platform_user,
+                user__isnull=False,
+            ).count()
+        )
 
 
 class UserRestrictionService:
@@ -12,11 +28,11 @@ class UserRestrictionService:
         self, user: str | PlatformUser, group: str | PlatformGroup | None = None
     ):
         if isinstance(user, PlatformUser):
-            self._platform_user = user
-            self._identifier = user.pk
+            self._user = user
+            self._user_identifier = user.identifier
         else:
-            self._identifier = user
-            self._platform_user = PlatformUser.objects.filter(
+            self._user_identifier = user
+            self._user = PlatformUser.objects.filter(
                 identifier=user,
             ).first()
 
@@ -28,23 +44,47 @@ class UserRestrictionService:
                 identifier=group,
             )[0]
 
+    @property
+    def user(self) -> PlatformUser:
+        if not self._user:
+            self._user = PlatformUser.objects.get_or_create(
+                identifier=self._user_identifier,
+            )[0]
+
+        return self._user
+
+    @property
+    def group(self) -> PlatformGroup | None:
+        return self._platform_group
+
     @transaction.atomic
     def restrict(
         self,
         restriction_type: UserRestrictionType,
+        restricted_by: str | PlatformUser,
         length: datetime | None,
         reason: str | None,
     ) -> UserRestriction:
         """Add restriction to this user."""
 
-        if not self._platform_user:
-            self._platform_user = PlatformUser.objects.get_or_create(
-                identifier=self._identifier,
+        if self.is_global:
+            if not is_admin(restricted_by):
+                raise NotAnInstanceAdmin(
+                    "Only instance admins can create global restrictions"
+                )
+
+        if isinstance(restricted_by, str):
+            restricted_by = PlatformUser.objects.get_or_create(
+                identifier=restricted_by,
             )[0]
 
+        if restricted_by.pk == self.user.pk:
+            raise UnrestrictableUser("Unable to restrict yourself")
+
         restriction = UserRestriction.objects.create(
-            platform_user=self._platform_user,
-            platform_group=self._platform_group,
+            platform_user=self.user,
+            platform_group=self.group,
+            restricted_by=restricted_by,
             restriction_type=restriction_type,
             restriction_length=length,
             restriction_reason=reason,
@@ -64,21 +104,21 @@ class UserRestrictionService:
         """
 
         qs_filter = dict(
-            platform_user__identifier=self._identifier,
+            platform_user__identifier=self.user.identifier,
             is_active=True,
         )
         if by_type is not None:
             qs_filter["restriction_type"] = by_type
 
-        if self._platform_group is None:
+        if self.group is None:
             qs_filter["platform_group__isnull"] = True
         else:
-            qs_filter["platform_group"] = self._platform_group
+            qs_filter["platform_group"] = self.group
 
         return UserRestriction.objects.filter(**qs_filter)
 
     @property
-    def is_group_specific(self) -> bool:
-        """If True - this instance is group-specific, else - global."""
+    def is_global(self) -> bool:
+        """If False - this instance is group-specific, else - global."""
 
-        return bool(self._platform_group is not None)
+        return bool(self.group is None)

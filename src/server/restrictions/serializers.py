@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import UserRestriction
 from .choices import UserRestrictionType
+from server.platform import constants
 
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
@@ -13,6 +14,7 @@ from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
             response_only=True,
             value={
                 "restriction_type": UserRestrictionType.BAN,
+                "restricted_by": "5429",
                 "restriction_reason": "Was bad",
                 "restricted_since": "2025-01-04T01:23:23.240899Z",
                 "restricted_until": "2025-01-05T01:23:23.240899Z",
@@ -24,6 +26,7 @@ from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
             response_only=True,
             value={
                 "restriction_type": UserRestrictionType.BAN,
+                "restricted_by": "5429",
                 "restriction_reason": "Was bad",
                 "restricted_since": "2025-01-04T01:23:23.240899Z",
                 "restricted_until": None,
@@ -33,11 +36,16 @@ from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 )
 class UserRestrictionSerializer(serializers.ModelSerializer):
     restricted_until = serializers.DateTimeField()
+    restricted_by = serializers.CharField(
+        source="restricted_by.identifier",
+        default=None,
+    )
 
     class Meta:
         model = UserRestriction
         fields = (
             "restriction_type",
+            "restricted_by",
             "restriction_reason",
             "restricted_since",
             "restricted_until",
@@ -51,12 +59,15 @@ class UserRestrictionSerializer(serializers.ModelSerializer):
             summary="Example",
             description=(
                 # TODO: description for other fields
-                "- user: user id on the platform, no longer than 128 symbols.\n"
+                f"- user: user id on the platform, no longer than {constants.USER_IDENTIFIER_LENGTH} symbols.\n"
+                f"- group: group id on the platform, no longer than {constants.GROUP_IDENTIFIER_LENGTH} symbols.\n"
                 "- restriction_length: length of the restiction in HH:MM:SS fmt.\n"
             ),
             request_only=True,
             value={
-                "user": "123",
+                "user": "1234",
+                "restricted_by": "5429",
+                "group": "1629",
                 "restriction_type": UserRestrictionType.BAN,
                 "restriction_reason": "Was bad",
                 "restriction_length": "10:12:00",
@@ -65,15 +76,18 @@ class UserRestrictionSerializer(serializers.ModelSerializer):
     ]
 )
 class UserRestrictionRestrictSerializer(serializers.Serializer):
-    # Max length from PlatformUser.identifer
     user = serializers.CharField(
-        max_length=128,
+        max_length=constants.USER_IDENTIFIER_LENGTH,
         required=True,
     )
-    # Max length from PlatformGroup.identifier
+    restricted_by = serializers.CharField(
+        max_length=constants.USER_IDENTIFIER_LENGTH,
+        required=True,
+    )
     group = serializers.CharField(
-        max_length=128,
+        max_length=constants.GROUP_IDENTIFIER_LENGTH,
         required=False,
+        help_text="If not set - counts as a netban, additional checks will apply",
     )
 
     restriction_type = serializers.ChoiceField(

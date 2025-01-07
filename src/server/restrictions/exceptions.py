@@ -6,3 +6,12 @@ class UnrestrictableUser(Exception):
     """
 
     pass
+
+
+class NotAnInstanceAdmin(Exception):
+    """
+    Exception thrown when a certain action require an instance admin privilegies,
+    but theuser lacks them.
+    """
+
+    pass

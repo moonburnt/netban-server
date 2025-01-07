@@ -20,6 +20,19 @@ class UserRestriction(models.Model):
         default=None,
         on_delete=models.CASCADE,
     )
+    restricted_by = models.ForeignKey(
+        to="platform.PlatformUser",
+        help_text=(
+            "User who casted this restriction upon the platform_user.\n"
+            "If unspecified - then its either a netban or initiator has deleted "
+            "their account."
+        ),
+        related_name="created_restrictions",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     restriction_type = models.IntegerField(
         choices=UserRestrictionType.choices,
@@ -45,8 +58,6 @@ class UserRestriction(models.Model):
     )
 
     objects = UserRestrictionManager()
-
-    # TODO: banned by (admin user for netbans or user id for local bans)
 
     # restricted_until, is_active - are now parts of the manager
     def __str__(self) -> str:

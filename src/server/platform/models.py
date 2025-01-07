@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from . import constants
 
 
 class PlatformUser(models.Model):
@@ -9,7 +10,7 @@ class PlatformUser(models.Model):
     """
 
     identifier = models.CharField(
-        max_length=128,
+        max_length=constants.USER_IDENTIFIER_LENGTH,
         unique=True,
     )
 
@@ -24,7 +25,7 @@ class PlatformGroup(models.Model):
     """Platform specific group data."""
 
     identifier = models.CharField(
-        max_length=128,
+        max_length=constants.GROUP_IDENTIFIER_LENGTH,
         unique=True,
     )
 

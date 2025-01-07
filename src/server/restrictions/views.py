@@ -53,6 +53,7 @@ class UserRestrictionListView(FormattedResponseMixin, views.APIView):
             ),
         ],
         responses={
+            # TODO: patch the response serializer to add api response formatted data
             200: UserRestrictionSerializer(many=True),
         },
     )
@@ -90,18 +91,29 @@ class UserRestrictionRestrictView(FormattedResponseMixin, views.APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        # TODO: require request to be sent by an admin-related account for netbans
         service = UserRestrictionService(
             user=serializer.validated_data["user"],
             group=serializer.validated_data.get("group", None),
         )
-        restriction = service.restrict(
-            restriction_type=serializer.validated_data["restriction_type"],
-            reason=serializer.validated_data["restriction_reason"],
-            length=serializer.validated_data.get("restriction_length", None),
-        )
-
-        return Response(
-            data=UserRestrictionSerializer(restriction).data,
-            status=status.HTTP_200_OK,
-        )
+        try:
+            restriction = service.restrict(
+                restriction_type=serializer.validated_data["restriction_type"],
+                restricted_by=serializer.validated_data["restricted_by"],
+                reason=serializer.validated_data["restriction_reason"],
+                length=serializer.validated_data.get(
+                    "restriction_length", None
+                ),
+            )
+        except Exception as e:
+            return Response(
+                data={
+                    "code": str(getattr(e, "code", None) or type(e).__name__),
+                    "detail": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            return Response(
+                data=UserRestrictionSerializer(restriction).data,
+                status=status.HTTP_200_OK,
+            )
