@@ -3,7 +3,7 @@ from django.urls import include, path
 from . import api_urls, schema_urls
 
 urlpatterns = [
-    path("api/v1/", include(api_urls.urlpatterns)),
+    path("api/", include(api_urls.urlpatterns)),
 ]
 if not settings.HEADLESS_MODE:
     from . import admin_urls
