@@ -134,6 +134,10 @@ APPEND_SLASH = True
 
 # Schema
 SPECTACULAR_SETTINGS = {
+    "TITLE": "Netban Server API",
+    "DESCRIPTION": "REST API to communicate with this Netban Server instance",
+    "VERSION": API_VERSION,
+    "SERVE_INCLUDE_SCHEMA": False,
     "APPEND_COMPONENTS": {
         "securitySchemes": {
             "ApiKeyAuth": {
