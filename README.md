@@ -26,4 +26,4 @@ TODO
 
 ## License
 
-MIT[LICENSE]
+[MIT](https://github.com/moonburnt/netban-server/blob/master/LICENSE)
